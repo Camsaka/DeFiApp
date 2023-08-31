@@ -27,13 +27,80 @@ const factoryInstance = new ethers.Contract(
    connectedWallet
 );
 
+//lockers contract instance
+const teamFinanceLockerInstance = new ethers.Contract(
+   "0xE2fE530C047f2d85298b07D9333C05737f1435fB",
+   [
+      "event Deposit(uint256 id, address indexed tokenAddress, address indexed withdrawalAddress, uint256 amount, uint256 unlockTime)",
+      "event LockDurationExtended(uint256 id, uint256 unlockTime)",
+   ],
+   connectedWallet
+);
+
+const unicryptLockerInstance = new ethers.Contract(
+   "0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214",
+   [
+      "event onDeposit(address lpToken, address user, uint256 amount, uint256 lockDate, uint256 unlockDate)",
+   ],
+   connectedWallet
+);
+
+const pinkLockerInstance = new ethers.Contract(
+   "0x71B5759d73262FBb223956913ecF4ecC51057641",
+   [
+      "event LockAdded(uint256 indexed id, address token, address owner, uint256 amount, uint256 unlockDate)",
+   ],
+   connectedWallet
+);
+
+//team finance lp token locked event listener
+teamFinanceLockerInstance.on('Deposit', async (id, tokenAddress, withdrawalAddress, amount, unlockTime) => {
+   console.log(
+      `
+      =====================================
+      New Deposit detected on TeamFinance
+      =====================================
+      id : ${id}
+      token pair : ${tokenAddress}
+      amount : ${amount}
+      unlock time : ${unlockTime} 
+      `)
+})
+
+//team unicrypt lp token locked event listener
+unicryptLockerInstance.on('onDeposit', async (lpToken, user, amount, lockDate, unlockDate) => {
+   console.log(
+      `
+      =====================================
+      New Deposit detected on UniCrypt
+      =====================================
+      token pair : ${lpToken}
+      amount : ${ethers.utils.formatEther(amount)}
+      unlock time : ${unlockDate} 
+      `)
+})
+
+//team pink sale lp token locked event listener
+pinkLockerInstance.on('LockAdded', async (id, token, owner, amount, unlockDate) => {
+   console.log(
+      `
+      =====================================
+      New Deposit detected on Pink Sale
+      =====================================
+      id : ${id}
+      token pair : ${token}
+      amount : ${ethers.utils.formatEther(amount)}
+      unlock time : ${unlockDate} 
+      `)
+})
+
 //getBalance function from ethers.js library
 // const getBalance = async () => {
 //    balance = await provider.getBalance(PUB_KEY);
 //    console.log("Your balance : ", balance.toBigInt());
 // };
 
-//function totalSupply d'unn token et l'affiche dans la console
+//function totalSupply d'un token et l'affiche dans la console
 const getTotalSupply = async (contractAddress) => {
    const res = await fetch(
       `https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=${contractAddress}&apikey=${ETHER_API_TOKEN}`
@@ -84,17 +151,19 @@ const getWETHInPairAddress = async (pairAddress) => {
    }
 };
 
-
 //function qui calcul la proportion de token locked (locker)
 const getWETHLocked = async (pairAddress, lpTokenAmount) => {
-   const amount = lpTokenAmount * await getWETHInPairAddress(pairAddress) / await getTotalLPToken(pairAddress)
-   console.log("amount locked : ", amount)
+   const amount =
+      (lpTokenAmount * (await getWETHInPairAddress(pairAddress))) /
+      (await getTotalLPToken(pairAddress));
+   console.log("amount locked : ", amount);
    return parseInt(amount);
-}
+};
 
 //createdPair event listener web socket
 factoryInstance.on("PairCreated", async (token0, token1, pairAddress) => {
    console.log(`
+   ================
    New pair created
    ================
    token0 : ${token0}
@@ -120,7 +189,7 @@ factoryInstance.on("PairCreated", async (token0, token1, pairAddress) => {
          "======================================================================="
       );
    } else {
-      console.log("No WETH detectec in the pair");
+      console.log("No WETH detected in the pair");
       console.log(
          "======================================================================="
       );

@@ -54,9 +54,11 @@ const pinkLockerInstance = new ethers.Contract(
 );
 
 //team finance lp token locked event listener
-teamFinanceLockerInstance.on('Deposit', async (id, tokenAddress, withdrawalAddress, amount, unlockTime) => {
-   console.log(
-      `
+teamFinanceLockerInstance.on(
+   "Deposit",
+   async (id, tokenAddress, withdrawalAddress, amount, unlockTime) => {
+      console.log(
+         `
       =====================================
       New Deposit detected on TeamFinance
       =====================================
@@ -64,26 +66,34 @@ teamFinanceLockerInstance.on('Deposit', async (id, tokenAddress, withdrawalAddre
       token pair : ${tokenAddress}
       amount : ${amount}
       unlock time : ${unlockTime} 
-      `)
-})
+      `
+      );
+   }
+);
 
 //team unicrypt lp token locked event listener
-unicryptLockerInstance.on('onDeposit', async (lpToken, user, amount, lockDate, unlockDate) => {
-   console.log(
-      `
+unicryptLockerInstance.on(
+   "onDeposit",
+   async (lpToken, user, amount, lockDate, unlockDate) => {
+      console.log(
+         `
       =====================================
       New Deposit detected on UniCrypt
       =====================================
       token pair : ${lpToken}
       amount : ${ethers.utils.formatEther(amount)}
       unlock time : ${unlockDate} 
-      `)
-})
+      `
+      );
+   }
+);
 
 //team pink sale lp token locked event listener
-pinkLockerInstance.on('LockAdded', async (id, token, owner, amount, unlockDate) => {
-   console.log(
-      `
+pinkLockerInstance.on(
+   "LockAdded",
+   async (id, token, owner, amount, unlockDate) => {
+      console.log(
+         `
       =====================================
       New Deposit detected on Pink Sale
       =====================================
@@ -91,8 +101,10 @@ pinkLockerInstance.on('LockAdded', async (id, token, owner, amount, unlockDate) 
       token pair : ${token}
       amount : ${ethers.utils.formatEther(amount)}
       unlock time : ${unlockDate} 
-      `)
-})
+      `
+      );
+   }
+);
 
 //getBalance function from ethers.js library
 // const getBalance = async () => {
